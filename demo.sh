@@ -80,10 +80,10 @@ command.help() {
       demo install --project-prefix mydemo
 
   COMMANDS:
-      install                        Sets up the demo and creates namespaces
-      uninstall                      Deletes the demo
-      start                          Starts the deploy DEV pipeline
-      help                           Help about this command
+      install                      Sets up the demo and creates namespaces
+      uninstall                    Deletes the demo
+      start                        Starts the deploy DEV pipeline
+      help                         Help about this command
 
   OPTIONS:
       -p|--project-prefix [string]   Prefix to be added to demo project names e.g. PREFIX-dev
@@ -96,6 +96,8 @@ command.install() {
   info "Creating namespaces $cicd_prj, $dev_prj, $stage_prj"
   oc get ns $cicd_prj 2>/dev/null  || {
     oc new-project $cicd_prj
+    # OpenShift 4.14+ PSA Fix: Allow legacy infrastructure pods (Nexus, SonarQube, Gitea) to run
+    oc label ns $cicd_prj pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged
   }
   oc get ns $dev_prj 2>/dev/null  || {
     oc new-project $dev_prj
@@ -138,7 +140,7 @@ command.install() {
   do
     result=$(curl --write-out '%{response_code}' --head --silent --output /dev/null https://$GITEA_HOSTNAME/gitea/spring-petclinic)
     if [ "$result" == "200" ]; then
-	    break
+      break
     fi
     wait_seconds 5
   done
@@ -254,7 +256,7 @@ EOF
 
   4) Check the pipeline run logs in Dev Console or Tekton CLI:
 
-    \$ opc pac logs -n $cicd_prj
+    \$ tkn pac logs -n $cicd_prj
 
 
   You can find further details at:
