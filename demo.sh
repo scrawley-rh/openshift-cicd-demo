@@ -93,11 +93,11 @@ EOF
 command.install() {
   oc version >/dev/null 2>&1 || err "no oc binary found"
 
-  info "Creating namespaces $cicd_prj, $dev_prj, $stage_prj"
+info "Creating namespaces $cicd_prj, $dev_prj, $stage_prj"
   oc get ns $cicd_prj 2>/dev/null  || {
     oc new-project $cicd_prj
-    # OpenShift 4.14+ PSA Fix: Allow legacy infrastructure pods (Nexus, SonarQube, Gitea) to run
-    oc label ns $cicd_prj pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged
+    # OpenShift 4.14+ PSA Fix with overwrite
+    oc label ns $cicd_prj pod-security.kubernetes.io/enforce=privileged pod-security.kubernetes.io/audit=privileged pod-security.kubernetes.io/warn=privileged --overwrite
   }
   oc get ns $dev_prj 2>/dev/null  || {
     oc new-project $dev_prj
